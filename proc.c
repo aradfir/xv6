@@ -173,7 +173,18 @@ growproc(int n)
   switchuvm(curproc);
   return 0;
 }
+int proccount(void){
+  struct proc *p;
+  int res=0;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED)
+      res++;
+  }
+  release(&ptable.lock);
+  return res;
 
+}
 // Create a new process copying p as the parent.
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
