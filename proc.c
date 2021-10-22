@@ -114,11 +114,6 @@ found:
 
   return p;
 }
-
-int readCounter=0;
-int readCount(void){
-  return readCounter;
-}
 //PAGEBREAK: 32
 // Set up first user process.
 void

@@ -9,7 +9,8 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-
+//sysproc
+extern int      readCounter;
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
