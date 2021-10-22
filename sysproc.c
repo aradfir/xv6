@@ -93,3 +93,7 @@ sys_uptime(void)
 int sys_proccount(void){
   return proccount();
 }
+
+int sys_readcount(void){
+  return readCount();
+}
