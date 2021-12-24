@@ -153,69 +153,87 @@ userinit(void) {
 
     release(&ptable.lock);
 }
-
 // Grow current process's memory by n bytes.
 // Return 0 on success, -1 on failure.
-int
-growproc(int n) {
+int growproc(int n)
+{
     uint sz;
     struct proc *curproc = myproc();
+
     acquire(&threadlock);
     sz = curproc->sz;
-    if (n > 0) {
-        if ((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0) {
+    if (n > 0)
+    {
+        if ((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
+        {
             release(&threadlock);
             return -1;
         }
-    } else if (n < 0) {
-        if ((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0) {
+    }
+    else if (n < 0)
+    {
+        if ((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
+        {
             release(&threadlock);
             return -1;
         }
     }
     curproc->sz = sz;
+
     acquire(&ptable.lock);
     struct proc *p;
-    int numberOfChildren;
-    if(curproc->threads==-1){
-        curproc->parent->sz=curproc->sz;
-        numberOfChildren=curproc->parent->threads-2;
-        if(numberOfChildren<=0){
+    int numOfChildren;
+    if (curproc->threads == -1)
+    {
+        curproc->parent->sz = sz;
+        numOfChildren = curproc->parent->threads - 2;
+        if (numOfChildren <= 0)
+        {
+            release(&ptable.lock);
+            release(&threadlock);
+            switchuvm(curproc);
+            return 0;
+        }
+        // update sibling of process
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+        {
+            if (p != curproc && p->parent == curproc->parent && p->threads == -1)
+            {
+                p->sz = sz;
+                numOfChildren--;
+            }
+        }
+    }
+    else
+    {
+        numOfChildren = curproc->threads - 1;
+        if (numOfChildren <= 0)
+        {
             release(&ptable.lock);
             release(&threadlock);
             switchuvm(curproc);
             return 0;
         }
         else
-            for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
-                if(p!=curproc&&p->parent==curproc->parent&&p->threads==-1)
+        {
+            for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+            {
+                if (p->parent == curproc && p->threads == -1)
                 {
-                    p->sz=curproc->sz;
-                    numberOfChildren--;
+                    p->sz = sz;
+                    numOfChildren--;
                 }
-    }
-    else {
-        numberOfChildren = curproc->parent->threads - 1;
-        if (numberOfChildren <= 0) {
-            release(&ptable.lock);
-            release(&threadlock);
-            switchuvm(curproc);
-
+            }
         }
-        else
-            for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
-                if(p->parent==curproc->parent&&p->threads==-1)
-                {
-                    p->sz=curproc->sz;
-                    numberOfChildren--;
-                }
-
     }
+
     release(&ptable.lock);
     release(&threadlock);
     switchuvm(curproc);
     return 0;
 }
+
+
 
 int check_pgdir_share(struct proc *process) {
     struct proc *p;
@@ -259,6 +277,8 @@ fork(void) {
         np->state = UNUSED;
         return -1;
     }
+    np->threads++;
+    np->stackTop=curproc->stackTop;
     np->sz = curproc->sz;
     np->parent = curproc;
     *np->tf = *curproc->tf;
