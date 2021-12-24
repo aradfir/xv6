@@ -22,3 +22,5 @@
 #define SYS_close     21
 #define SYS_proccount 22
 #define SYS_readcount 23
+#define SYS_thread_create 24
+#define SYS_thread_wait 25

@@ -97,3 +97,14 @@ int readCounter;
 int sys_readcount(void){
   return readCounter;
 }
+int sys_thread_create(void){
+    char* stack;
+    if(argptr(0,&stack,sizeof(stack))<0){
+        return -1;
+    }
+    return thread_create((void*)stack);
+}
+int sys_thread_wait(void){
+
+    return thread_wait();
+}

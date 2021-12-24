@@ -123,6 +123,8 @@ void            wakeup(void*);
 void            yield(void);
 int             proccount(void);
 int             readCount(void);
+int             thread_create(void* stack);
+int             thread_wait(void);
 // swtch.S
 void            swtch(struct context**, struct context*);
 
