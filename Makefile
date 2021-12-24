@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_proccountTest\
 	_readCountTest\
+	_threadTest1\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -258,6 +259,7 @@ EXTRA=\
 	proccountTest.c\
 	readCountTest.c\
 	thread_creator.c\
+	thread_test.c\
 
 dist:
 	rm -rf dist
